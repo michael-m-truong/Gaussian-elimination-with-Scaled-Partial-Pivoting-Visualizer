@@ -41,55 +41,79 @@ public class Driver {
         {12,-8,6,10, 26}
     };
     public static void main(String[] args) {
-        //Scanner input = new Scanner(System.in);
-        //System.out.print("Enter number of equations: ");
+        Scanner input = new Scanner(System.in);
+        System.out.println("Welcome to Gaussian elimination w/ partial scaling visualizer!");
+        System.out.println("1. Select from file");
+        System.out.println("2. Manually enter matrix");
+        System.out.println("3. Use test case matrix");
+        System.out.print("Enter number choice: ");
+        int numberChoice = Integer.parseInt(input.nextLine());
         //numOfEquations = Integer.parseInt(input.nextLine());        // row
-        //System.out.print("Enter the number variables to solve for: ");
-        //numOfVariables = Integer.parseInt(input.nextLine());         // col
-        //input.close();
+        if (numberChoice == 2) {
+            System.out.print("Enter number of equations: ");
+            numOfEquations = Integer.parseInt(input.nextLine());
+            //System.out.println(numOfEquations);
+            numOfVariables = numOfEquations; // num of variables to solve for equals num of equations 
+            userMatrixA = new double[numOfEquations][numOfEquations];
+            userMatrixB = new double [numOfEquations];
+            for (int i = 0; i < numOfEquations; i++) {
+                for (int j = 0; j < numOfEquations; j++) {
+                    System.out.print("Enter value for a" + (i+1) + (j+1) + ": ");
+                    int val = Integer.parseInt(input.nextLine());
+                    userMatrixA[i][j] = val;
+                }
+                System.out.print("Enter value for b" + (i+1) + ": ");
+                int val = Integer.parseInt(input.nextLine());
+                userMatrixB[i] = val;
+            }
+        }
         /*for (int i = 0; i < numOfEquations; i++) {
             int pivotRow = getScaledRatio(pivotCount++);
             for (int j = 0; j < numOfVariables; i++) {
 
             }
         } */
-        List<double[]> listA = new ArrayList<>(); 
-        List<Double> listB = new ArrayList<>(); 
-        try {
-            File myObj = new File("InputFile.txt");
-            Scanner myReader = new Scanner(myObj);
-            
-            while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
-                if (data.replaceAll("\\s", "") == "") break;
-                String arr[] = data.split(" ");
-                //System.out.println(Arrays.toString(arr));
-                listB.add(Double.parseDouble(arr[arr.length-1]));
-                arr = Arrays.copyOfRange(arr, 0, arr.length-1);
-                double [] arrA = Arrays.stream(arr).mapToDouble(Double::valueOf).toArray();
-                listA.add(arrA);
+        if (numberChoice == 1) {
+            List<double[]> listA = new ArrayList<>(); 
+            List<Double> listB = new ArrayList<>(); 
+            try {
+                File myObj = new File("InputFile.txt");
+                Scanner myReader = new Scanner(myObj);
+                
+                while (myReader.hasNextLine()) {
+                    String data = myReader.nextLine();
+                    if (data.replaceAll("\\s", "") == "") break;
+                    String arr[] = data.split(" ");
+                    //System.out.println(Arrays.toString(arr));
+                    listB.add(Double.parseDouble(arr[arr.length-1]));
+                    arr = Arrays.copyOfRange(arr, 0, arr.length-1);
+                    double [] arrA = Arrays.stream(arr).mapToDouble(Double::valueOf).toArray();
+                    listA.add(arrA);
+                }
+                myReader.close();
+            } catch (FileNotFoundException e) {
+                System.out.println("An error occurred.");
             }
-            myReader.close();
-          } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
+            userMatrixA = listA.toArray(new double[0][]);
+            userMatrixB = listB.stream().mapToDouble(Double::intValue).toArray();
+            numOfEquations = userMatrixA.length;
+            numOfVariables = numOfEquations;
         }
-        userMatrixA = listA.toArray(new double[0][]);
-        userMatrixB = listB.stream().mapToDouble(Double::intValue).toArray();
-        for (int i =0; i < userMatrixA.length; i++) {
-            //System.out.println(Arrays.toString(userMatrixA[i]));
+        if (numberChoice == 3) {
+            userMatrixA = testMatrix2;
+            userMatrixB = testb2;
+            numOfEquations = userMatrixA.length;
+            numOfVariables = numOfEquations;
         }
-        numOfEquations = 4;
-        //numOfVariables = 5;
-        //double[] x = Gauss(testMatrix, testb);
-        for (int i = 1; i<= testMatrix.length; i++) {
+        for (int i = 1; i<= userMatrixA.length; i++) {
             indexVector.add(i);
         }
         double[] x = Gauss(userMatrixA, userMatrixB);
         System.out.println("\nAnswer:");
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < numOfVariables; i++) {
             System.out.println("x"+(i+1) + " = " +x[i]);
         } 
-        
+        input.close();
     }
 
     private static int getScaledRatio(int pivotCol, double[][] matrix) {
@@ -97,7 +121,7 @@ public class Driver {
         if (pivotCol == 0) {
             for (int i = 0; i < numOfEquations; i++) {
                 double greatest = 0;
-                for (int j = 0; j < numOfVariables-1; j++) {
+                for (int j = 0; j < numOfVariables; j++) {
                     if (j == 0) {
                         greatest = Math.abs(matrix[i][j]);
                     }
